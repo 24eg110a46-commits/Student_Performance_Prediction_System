@@ -169,19 +169,44 @@ ML service: `POST /predict`, `GET /metrics`, `GET /health` on port 5001.
 - Change the default `admin` password (see `DataSeeder.java`) and your MySQL password.
 - Replace the simulated dataset with real, consented, anonymised student records.
 
+## Cloud Deployment & Docker
+
+### 1. Docker Compose (Single Command)
+
+To run the entire system (MySQL 8, Flask ML service, Spring Boot API, and React frontend) locally or on a VPS:
+
+```bash
+docker compose up --build
+```
+
+- Web App: `http://localhost:80`
+- API: `http://localhost:8080`
+- ML Service: `http://localhost:5001`
+
+### 2. Free Cloud Hosting (TiDB + Render + Vercel)
+
+- **Database**: Free MySQL cluster on [TiDB Cloud Serverless](https://tidbcloud.com) (5 GB free).
+- **ML Service**: Python Web Service on [Render](https://render.com) (`ml-service/`, start command: `gunicorn -b 0.0.0.0:$PORT app:app`).
+- **Backend API**: Docker Web Service on [Render](https://render.com) (`backend/`, set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `ML_SERVICE_URL`).
+- **Frontend**: Vite SPA on [Vercel](https://vercel.com) (`frontend/`, set `VITE_API_URL` to backend URL).
+
+See the step-by-step deployment guide for complete setup details.
+
 ## Project layout
 
 ```
 Student_Performance_Prediction_System/
   README.md
+  docker-compose.yml           All-in-one container orchestration
   database/schema.sql          MySQL tables
-  ml-service/                  Flask API, dataset, training script
+  ml-service/                  Flask API, dataset, training script, Dockerfile
     app.py  train_model.py  generate_dataset.py  requirements.txt  data/student_data.csv
-  backend/                     Spring Boot API
+  backend/                     Spring Boot API, Dockerfile
     pom.xml
     src/main/java/com/spps/    controller, service, repository, model, dto, security, config
     src/main/resources/        application.properties (MySQL), application-h2.properties
-  frontend/                    React app
+  frontend/                    React app, Dockerfile, vercel.json
     src/pages/                 Login, Dashboard, Students, StudentDetail, AddStudent, EditStudent
     src/components/            Layout, StudentForm, CategoryBadge
 ```
+
